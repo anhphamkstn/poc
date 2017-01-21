@@ -168,20 +168,39 @@
         this.directionsService.route({
           origin: {'placeId': this.originPlaceId},
           destination: {'placeId': this.destinationPlaceId},
-          travelMode: this.travelMode
+          travelMode: this.travelMode,
+          provideRouteAlternatives : true
         }, function(response, status) {
           if (status === 'OK') {
-            console.log(response)
-            me.directionsDisplay.setDirections(response);
-            var step = 1;
-            var infowindow2 = new google.maps.InfoWindow();
-            infowindow2.setContent(response.routes[0].legs[0].distance.text + "<br>" + response.routes[0].legs[0].duration.text + " ");
-            infowindow2.setPosition(response.routes[0].legs[0].steps[step].end_location);
-            infowindow2.open(me.map);
+            //me.directionsDisplay.setDirections(response);
+            var i=0;
+            response.routes.forEach(function(route) {
+                var directionsRenderer = new google.maps.DirectionsRenderer({
+                  directions: response,
+                  routeIndex: i,
+                  map: me.map,
+                  polylineOptions:  getPolylineFormat(i)
+                }); 
+                var infowindow2 = new google.maps.InfoWindow();
+                infowindow2.setContent(response.routes[i].legs[0].distance.text + "<br>" + response.routes[i].legs[0].duration.text + " ");
+                infowindow2.setPosition(response.routes[i].legs[0].steps[response.routes[i].legs[0].steps.length-4].end_location);
+                infowindow2.open(me.map);
+                 i++;
+            })   
           } else {
             window.alert('Directions request failed due to ' + status);
           }
         });
+
+        function getPolylineFormat(index) {
+            if (index == 0) return {
+                    strokeColor: "blue"
+                  }
+            else return {
+                    strokeColor: "green",
+                    strokeOpacity: 0.8
+                  }
+          }
       };
 
     </script>
