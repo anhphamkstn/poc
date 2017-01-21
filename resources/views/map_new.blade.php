@@ -103,6 +103,8 @@
         this.originPlaceId = null;
         this.destinationPlaceId = null;
         this.travelMode = 'DRIVING';
+        this.directionsRenderers = [];
+        this.inforwindows = [];
         var originInput = document.getElementById('origin-input');
         var destinationInput = document.getElementById('destination-input');
         var modeSelector = document.getElementById('mode-selector');
@@ -164,7 +166,7 @@
           return;
         }
         var me = this;
-
+        clearAll();
         this.directionsService.route({
           origin: {'placeId': this.originPlaceId},
           destination: {'placeId': this.destinationPlaceId},
@@ -180,11 +182,13 @@
                   routeIndex: i,
                   map: me.map,
                   polylineOptions:  getPolylineFormat(i)
-                }); 
+                });
+                me.directionsRenderers.push(directionsRenderer);
                 var infowindow2 = new google.maps.InfoWindow();
                 infowindow2.setContent(response.routes[i].legs[0].distance.text + "<br>" + response.routes[i].legs[0].duration.text + " ");
                 infowindow2.setPosition(response.routes[i].legs[0].steps[response.routes[i].legs[0].steps.length-4].end_location);
                 infowindow2.open(me.map);
+                me.inforwindows.push(infowindow2);
                  i++;
             })   
           } else {
@@ -200,6 +204,15 @@
                     strokeColor: "green",
                     strokeOpacity: 0.8
                   }
+          }
+
+          function clearAll() {
+              me.directionsRenderers.forEach(function(direction) {
+                  direction.setMap(null);
+              })
+			  me.inforwindows.forEach(function(infoWindow) {
+				  infoWindow.close();
+			  })
           }
       };
 
