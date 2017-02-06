@@ -28,7 +28,7 @@
       }
 
       #origin-input,
-      #destination-input {
+      #destination-input,#time-input {
         background-color: #fff;
         font-family: Roboto;
         font-size: 15px;
@@ -40,7 +40,7 @@
       }
 
       #origin-input:focus,
-      #destination-input:focus {
+      #destination-input:focus,#time-input:focus {
         border-color: #4d90fe;
       }
 
@@ -57,6 +57,33 @@
         font-weight: 300;
       }
 
+      #left_panel{
+        height: 100%;
+        float: left;
+        width: 390px;
+        overflow: auto;
+        display:none;
+        line-height: 30px;
+        padding-left: 10px;
+      }
+      #left-panel select, #left-panel input {
+        font-size: 15px;
+      }
+
+      #left-panel select {
+        width: 100%;
+      }
+
+      #left-panel i {
+        font-size: 12px;
+      }
+      #left-panel {
+        height: 100%;
+        float: right;
+        width: 390px;
+        overflow: auto;
+      }
+
     </style>
   </head>
   <body>
@@ -65,6 +92,9 @@
 
     <input id="destination-input" class="controls" type="text"
         placeholder="Enter a destination location">
+
+    <input id="time-input" class="controls" type="time"
+        placeholder="Enter a time">
 
     <div id="mode-selector" class="controls" style="display:none">
       <input type="radio" name="type" id="changemode-walking" checked="checked">
@@ -78,7 +108,10 @@
     </div>
     <div id="left_panel"></div>
     <div id="map"></div>
-
+    <script
+    src="https://code.jquery.com/jquery-3.1.1.min.js"
+    integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+    crossorigin="anonymous"></script>
     <script>
       // This example requires the Places library. Include the libraries=places
       // parameter when you first load the API. For example:
@@ -98,6 +131,8 @@
        /**
         * @constructor
        */
+
+
       function AutocompleteDirectionsHandler(map) {
         this.map = map;
         this.originPlaceId = null;
@@ -107,12 +142,14 @@
         this.inforwindows = [];
         var originInput = document.getElementById('origin-input');
         var destinationInput = document.getElementById('destination-input');
+        var timeInput = document.getElementById('time-input');
         var modeSelector = document.getElementById('mode-selector');
         this.directionsService = new google.maps.DirectionsService;
         this.directionsDisplay = new google.maps.DirectionsRenderer;
         this.directionsDisplay.setMap(map);
-        //var left_panel = document.getElementById('left_panel');
-        //this.directionsDisplay.setPanel(left_panel);
+        var left_panel = document.getElementById('left_panel');
+        this.directionsDisplay.setPanel(left_panel);
+        //this.directionsDisplay.setPanel(document.getElementById('right-panel'));
         var originAutocomplete = new google.maps.places.Autocomplete(
             originInput, {placeIdOnly: true});
         var destinationAutocomplete = new google.maps.places.Autocomplete(
@@ -127,7 +164,9 @@
 
         this.map.controls[google.maps.ControlPosition.TOP_LEFT].push(originInput);
         this.map.controls[google.maps.ControlPosition.TOP_LEFT].push(destinationInput);
+        this.map.controls[google.maps.ControlPosition.TOP_LEFT].push(timeInput);
         this.map.controls[google.maps.ControlPosition.TOP_LEFT].push(modeSelector);
+        
        // this.map.controls[google.maps.ControlPosition.LEFT_TOP].push(left_panel);
       }
 
@@ -174,8 +213,11 @@
           provideRouteAlternatives : true
         }, function(response, status) {
           if (status === 'OK') {
-            //me.directionsDisplay.setDirections(response);
-            var i=0;
+            me.directionsDisplay.setDirections(response);
+            var left_panel = document.getElementById('left_panel');
+            $('#left_panel').css("display","block");
+            me.directionsDisplay.setPanel(left_panel);
+            /*var i=0;
             response.routes.forEach(function(route) {
                 var directionsRenderer = new google.maps.DirectionsRenderer({
                   directions: response,
@@ -190,7 +232,7 @@
                 infowindow2.open(me.map);
                 me.inforwindows.push(infowindow2);
                  i++;
-            })   
+            })   */
           } else {
             window.alert('Directions request failed due to ' + status);
           }
